@@ -1,174 +1,237 @@
-#ifdef _WIN32
-#include <Windows.h>
-#else
-#include <unistd.h>
-#endif
 #include <iostream>
-#include <vector>
-#include <unordered_map>
-#include <random>
-#include <set>
 #include <ctime>
-#include <iomanip>
+#include <cstdlib>
+#include <chrono>
+#include <algorithm>
 
 using namespace std;
 
-vector<int> generateRandomUniqueData(int size) {
-    vector<int> data;
-    set<int> uniqueData;
-
-    random_device rd;
-    mt19937 gen(rd());
-    uniform_int_distribution<int> dis(1, size * 10);
-
-    while (uniqueData.size() < size) {
-        uniqueData.insert(dis(gen));
+//---------------------------------GENERACION DE DATOS---------------------------------
+// Orden Aleatorio
+void generarAleatorio(int arr[], int size) {
+    for (int i = 0; i < size; ++i) {
+        arr[i] = rand() % 100000 + 1;
     }
-
-    for (int num : uniqueData) {
-        data.push_back(num);
+}
+// Orden Aleatorio con Duplicados
+void generarAleatorioConDuplicados(int arr[], int size) {
+    for (int i = 0; i < size; ++i) {
+        arr[i] = rand() % 100000 + 1;
     }
-
-    return data;
+    random_shuffle(arr, arr + size);
+}
+// Orden Ordenado
+void generarOrdenado(int arr[], int size) {
+    for (int i = 0; i < size; ++i) {
+        arr[i] = i + 1;
+    }
+}
+// Orden Inversamente Ordenado
+void generarInversamenteOrdenado(int arr[], int size) {
+    for (int i = 0; i < size; ++i) {
+        arr[i] = size - i;
+    }
 }
 
-void SelectionSort(vector<int>& arr) {
-    int n = arr.size();
-    for (int i = 0; i < n ; ++i) {
-        for (int j = i; j < n ; ++j) {
-            if (arr[j] < arr[i]) {
-                int temp = arr[i];
-                arr[i] = arr[j];
-                arr[j] = temp;
+//---------------------------------FUNCIONES DE ORDENAMIENTO---------------------------------
+void selectionSort(int arr[], int size) {
+    for (int i = 0; i < size - 1; ++i) {
+        int minIndex = i;
+        for (int j = i + 1; j < size; ++j) {
+            if (arr[j] < arr[minIndex]) {
+                minIndex = j;
+            }
+        }
+        swap(arr[i], arr[minIndex]);
+    }
+}
+
+void bubbleSort(int arr[], int size) {
+    for (int i = 0; i < size - 1; ++i) {
+        for (int j = 0; j < size - i - 1; ++j) {
+            if (arr[j] > arr[j + 1]) {
+                swap(arr[j], arr[j + 1]);
             }
         }
     }
 }
 
-void bubbleSort(int arr[], int n) {
-    for (int i = 0; i < n-1; i++) {
-        for (int j = 0; j < n-i-1; j++) {
-            if (arr[j] > arr[j+1]) {
-                int temp = arr[j];
-                arr[j] = arr[j+1];
-                arr[j+1] = temp;
-            }
-        }
-    }
-}
-
-void insertionSort(int arr[], int n) {
-    int i, key, j;
-    for (i = 1; i < n; i++) {
-        key = arr[i];
-        j = i - 1;
+void insertionSort(int arr[], int size) {
+    for (int i = 1; i < size; ++i) {
+        int key = arr[i];
+        int j = i - 1;
         while (j >= 0 && arr[j] > key) {
             arr[j + 1] = arr[j];
-            j = j - 1;
+            --j;
         }
         arr[j + 1] = key;
     }
 }
 
-void merge(int arr[], int l, int m, int r) {
-    int i, j, k;
-    int n1 = m - l + 1;
-    int n2 = r - m;
+void shellSort(int arr[], int size) {
+    for (int gap = size / 2; gap > 0; gap /= 2) {
+        for (int i = gap; i < size; ++i) {
+            int temp = arr[i];
+            int j;
+            for (j = i; j >= gap && arr[j - gap] > temp; j -= gap) {
+                arr[j] = arr[j - gap];
+            }
+            arr[j] = temp;
+        }
+    }
+}
+
+void merge(int arr[], int left, int middle, int right) {
+    int n1 = middle - left + 1;
+    int n2 = right - middle;
 
     int L[n1], R[n2];
 
-    for (i = 0; i < n1; i++)
-        L[i] = arr[l + i];
-    for (j = 0; j < n2; j++)
-        R[j] = arr[m + 1 + j];
+    for (int i = 0; i < n1; ++i)
+        L[i] = arr[left + i];
+    for (int j = 0; j < n2; ++j)
+        R[j] = arr[middle + 1 + j];
 
-    i = 0;
-    j = 0;
-    k = l;
+    int i = 0;
+    int j = 0;
+    int k = left;
+
     while (i < n1 && j < n2) {
         if (L[i] <= R[j]) {
             arr[k] = L[i];
-            i++;
+            ++i;
         } else {
             arr[k] = R[j];
-            j++;
+            ++j;
         }
-        k++;
+        ++k;
     }
 
     while (i < n1) {
         arr[k] = L[i];
-        i++;
-        k++;
+        ++i;
+        ++k;
     }
 
     while (j < n2) {
         arr[k] = R[j];
-        j++;
-        k++;
+        ++j;
+        ++k;
     }
 }
 
-void mergeSort(int arr[], int l, int r) {
-    if (l < r) {
-        int m = l + (r - l) / 2;
-        mergeSort(arr, l, m);
-        mergeSort(arr, m + 1, r);
-        merge(arr, l, m, r);
-    }
-}
+void mergeSort(int arr[], int left, int right) {
+    if (left < right) {
+        int middle = left + (right - left) / 2;
 
-void swap(int* a, int* b) {
-    int t = *a;
-    *a = *b;
-    *b = t;
+        mergeSort(arr, left, middle);
+        mergeSort(arr, middle + 1, right);
+
+        merge(arr, left, middle, right);
+    }
 }
 
 int partition(int arr[], int low, int high) {
     int pivot = arr[high];
-    int i = (low - 1);
-    for (int j = low; j <= high - 1; j++) {
+    int i = low - 1;
+
+    for (int j = low; j <= high - 1; ++j) {
         if (arr[j] < pivot) {
-            i++;
-            swap(&arr[i], &arr[j]);
+            ++i;
+            swap(arr[i], arr[j]);
         }
     }
-    swap(&arr[i + 1], &arr[high]);
-    return (i + 1);
+
+    swap(arr[i + 1], arr[high]);
+    return i + 1;
 }
 
 void quickSort(int arr[], int low, int high) {
     if (low < high) {
         int pi = partition(arr, low, high);
+
         quickSort(arr, low, pi - 1);
         quickSort(arr, pi + 1, high);
     }
 }
 
-double getResultFromAlg(vector<int>& arr) {
-    time_t start, end;
-    double time_taken;
-    time(&start);
-    ios_base::sync_with_stdio(false);
-    SelectionSort(arr);
-    time(&end);
-    time_taken = double(end - start);
-    return time_taken;
+void heapify(int arr[], int size, int i) {
+    int largest = i;
+    int left = 2 * i + 1;
+    int right = 2 * i + 2;
+
+    if (left < size && arr[left] > arr[largest]) {
+        largest = left;
+    }
+
+    if (right < size && arr[right] > arr[largest]) {
+        largest = right;
+    }
+
+    if (largest != i) {
+        swap(arr[i], arr[largest]);
+        heapify(arr, size, largest);
+    }
 }
 
-int main(int argc, char* argv[]) {
-    vector<int> arr = generateRandomUniqueData(10);
-
-    unordered_map<string, double> results;
-    results["SelectionSort"] = getResultFromAlg(arr);
-
-    int id = 1;
-    for (const auto& pair : results) {
-        const string& key = pair.first;
-        double value = pair.second;
-        cout << id << ". " << key << ", " << fixed << setprecision(5) << value << endl;
-        id++;
+void heapSort(int arr[], int size) {
+    for (int i = size / 2 - 1; i >= 0; --i) {
+        heapify(arr, size, i);
     }
+
+    for (int i = size - 1; i > 0; --i) {
+        swap(arr[0], arr[i]);
+        heapify(arr, i, 0);
+    }
+}
+
+//---------------------------------FUNCIONES MEDICION TIEMPO ORDENAMIENTO---------------------------------
+template <typename Func>
+double medirTiempo(Func func, int arr[], int size) {
+    auto start = chrono::high_resolution_clock::now();
+    func(arr, size);
+    auto end = chrono::high_resolution_clock::now();
+    chrono::duration<double> duration = end - start;
+    return duration.count();
+}
+
+int main() {
+    srand(static_cast<unsigned>(time(0)));
+
+    const int size = 100000;
+    int arr[size];
+
+    // Menú
+    int opcion;
+    do {
+        cout << "Menu:" << endl;
+        cout << "0. Salir" << endl;
+        cout << "Selecciona una opción: ";
+        cin >> opcion;
+
+        switch (opcion) {
+            case 1:
+
+                break;
+
+            case 2:
+
+                break;
+
+            case 3:
+
+                break;
+
+            case 0:
+                cout << "Saliendo del programa." << endl;
+                break;
+
+            default:
+                cout << "Opción no válida." << endl;
+        }
+
+    } while (opcion != 0);
 
     return 0;
 }
+
