@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <ctime>
 #include <cstdlib>
 #include <chrono>
@@ -184,8 +185,8 @@ void heapSort(int arr[], int size) {
         heapify(arr, i, 0);
     }
 }
-
 //---------------------------------FUNCIONES MEDICION TIEMPO ORDENAMIENTO---------------------------------
+// Función para medir el tiempo de ejecución de algoritmos de ordenamiento que toman dos argumentos
 template <typename Func>
 double medirTiempo(Func func, int arr[], int size) {
     auto start = chrono::high_resolution_clock::now();
@@ -195,34 +196,117 @@ double medirTiempo(Func func, int arr[], int size) {
     return duration.count();
 }
 
+// Función para medir el tiempo de ejecución de algoritmos de ordenamiento que toman tres argumentos
+template <typename Func>
+double medirTiempo(Func func, int arr[], int left, int right) {
+    auto start = chrono::high_resolution_clock::now();
+    func(arr, left, right);
+    auto end = chrono::high_resolution_clock::now();
+    chrono::duration<double> duration = end - start;
+    return duration.count();
+}
+//---------------------------------FUNCION CAMPO ESPECIFICO---------------------------------
+void ejecutarCarrera(int arr[], int size, const string& campo) {
+    cout << "Empieza la carrera en " << campo << "." << endl;
+    // Selection Sort
+    cout << "Selection Sort: " << medirTiempo(selectionSort, arr, size) << " segundos." << endl;
+    // Bubble Sort
+    cout << "Bubble Sort: " << medirTiempo(bubbleSort, arr, size) << " segundos." << endl;
+    // Insertion Sort
+    cout << "Insertion Sort: " << medirTiempo(insertionSort, arr, size) << " segundos." << endl;
+    // Shell Sort
+    cout << "Shell Sort: " << medirTiempo(shellSort, arr, size) << " segundos." << endl;
+    // Funcion que permite tomar 3 argumentos:
+    // Merge Sort
+	cout << "Merge Sort: " << medirTiempo(mergeSort, arr, 0, size - 1) << " segundos." << endl;
+    // Quick Sort
+	cout << "Quick Sort: " << medirTiempo(quickSort, arr, 0, size - 1) << " segundos." << endl;
+    // Heap Sort
+    cout << "Heap Sort: " << medirTiempo(heapSort, arr, size) << " segundos." << endl;
+    
+    cout << endl;
+}
+
+
 int main() {
     srand(static_cast<unsigned>(time(0)));
 
-    const int size = 100000;
+    const int size = 25;
     int arr[size];
+
+    // Llenar el arreglo con números aleatorios
+    for (int i = 0; i < size; ++i) {
+        arr[i] = rand() % 100 + 1;
+    }
+
+    // Mostrar el arreglo original
+    cout << "Arreglo Original:" << endl;
+    for (int i = 0; i < size; ++i) {
+        cout << arr[i] << " ";
+    }
+    cout << endl;
 
     // Menú
     int opcion;
     do {
-        cout << "Menu:" << endl;
-        cout << "0. Salir" << endl;
-        cout << "Selecciona una opción: ";
+    	cout << endl;
+        cout << "[MAIN MENU]" << endl;
+        cout << "1. Seleccion de Carrera" << endl;
+        cout << "2. Salir del Programa" << endl;
+        cout << "Selecciona una opcion: ";
         cin >> opcion;
 
         switch (opcion) {
             case 1:
+                // Seleccion de Carrera
+                cout << endl;
+                cout << "Seleccione el campo para la carrera:" << endl;
+                cout << "1. ALEATORIO" << endl;
+                cout << "2. ALEATORIO CON DUPLICADOS:" << endl;
+                cout << "3. ORDENADO:" << endl;
+                cout << "4. INVERSAMENTE ORDENADO" << endl;
+                cout << "0. VOLVER AL MENU PRINCIPAL" << endl;
 
+                int campoSeleccionado;
+                cout << "Selecciona una opcion: ";
+                cin >> campoSeleccionado;
+
+                switch (campoSeleccionado) {
+                    case 1:
+                        // Aleatorio
+                        generarAleatorio(arr, size);
+                        ejecutarCarrera(arr, size, "Aleatorio");
+                        break;
+
+                    case 2:
+                        // Aleatorio con Duplicados
+                        generarAleatorioConDuplicados(arr, size);
+                        ejecutarCarrera(arr, size, "Aleatorio con Duplicados");
+                        break;
+
+                    case 3:
+                        // Ordenado
+                        generarOrdenado(arr, size);
+                        ejecutarCarrera(arr, size, "Ordenado");
+                        break;
+
+                    case 4:
+                        // Inversamente Ordenado
+                        generarInversamenteOrdenado(arr, size);
+                        ejecutarCarrera(arr, size, "Inversamente Ordenado");
+                        break;
+
+                    case 0:
+                        // Volver al Menú Principal
+                        break;
+
+                    default:
+                        cout << "Opción no válida." << endl;
+                }
                 break;
 
             case 2:
-
-                break;
-
-            case 3:
-
-                break;
-
-            case 0:
+                // Salir del Programa
                 cout << "Saliendo del programa." << endl;
                 break;
 
@@ -230,7 +314,7 @@ int main() {
                 cout << "Opción no válida." << endl;
         }
 
-    } while (opcion != 0);
+    } while (opcion != 2);
 
     return 0;
 }
