@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <chrono>
 #include <algorithm>
+#include <unordered_map>
 
 using namespace std;
 
@@ -11,27 +12,55 @@ using namespace std;
 // Orden Aleatorio
 void generarAleatorio(int arr[], int size) {
     for (int i = 0; i < size; ++i) {
-        arr[i] = rand() % 100000 + 1;
+        arr[i] = rand() % 1000 + 1;
     }
+
+    // Agregar impresión del arreglo
+    cout << "Arreglo Aleatorio: ";
+    for (int i = 0; i < size; ++i) {
+        cout << arr[i] << " ";
+    }
+    cout << endl;
 }
-// Orden Aleatorio con Duplicados
+
 void generarAleatorioConDuplicados(int arr[], int size) {
     for (int i = 0; i < size; ++i) {
-        arr[i] = rand() % 100000 + 1;
+        arr[i] = rand() % 1000 + 1;
     }
     random_shuffle(arr, arr + size);
+
+    // Agregar impresión del arreglo
+    cout << "Arreglo Aleatorio con Duplicados: ";
+    for (int i = 0; i < size; ++i) {
+        cout << arr[i] << " ";
+    }
+    cout << endl;
 }
-// Orden Ordenado
+
 void generarOrdenado(int arr[], int size) {
     for (int i = 0; i < size; ++i) {
         arr[i] = i + 1;
     }
+
+    // Agregar impresión del arreglo
+    cout << "Arreglo Ordenado: ";
+    for (int i = 0; i < size; ++i) {
+        cout << arr[i] << " ";
+    }
+    cout << endl;
 }
-// Orden Inversamente Ordenado
+
 void generarInversamenteOrdenado(int arr[], int size) {
     for (int i = 0; i < size; ++i) {
         arr[i] = size - i;
     }
+
+    // Agregar impresión del arreglo
+    cout << "Arreglo Inversamente Ordenado: ";
+    for (int i = 0; i < size; ++i) {
+        cout << arr[i] << " ";
+    }
+    cout << endl;
 }
 
 //---------------------------------FUNCIONES DE ORDENAMIENTO---------------------------------
@@ -205,33 +234,89 @@ double medirTiempo(Func func, int arr[], int left, int right) {
     chrono::duration<double> duration = end - start;
     return duration.count();
 }
-//---------------------------------FUNCION CAMPO ESPECIFICO---------------------------------
-void ejecutarCarrera(int arr[], int size, const string& campo) {
-    cout << "Empieza la carrera en " << campo << "." << endl;
-    // Selection Sort
-    cout << "Selection Sort: " << medirTiempo(selectionSort, arr, size) << " segundos." << endl;
-    // Bubble Sort
-    cout << "Bubble Sort: " << medirTiempo(bubbleSort, arr, size) << " segundos." << endl;
-    // Insertion Sort
-    cout << "Insertion Sort: " << medirTiempo(insertionSort, arr, size) << " segundos." << endl;
-    // Shell Sort
-    cout << "Shell Sort: " << medirTiempo(shellSort, arr, size) << " segundos." << endl;
-    // Funcion que permite tomar 3 argumentos:
-    // Merge Sort
-	cout << "Merge Sort: " << medirTiempo(mergeSort, arr, 0, size - 1) << " segundos." << endl;
-    // Quick Sort
-	cout << "Quick Sort: " << medirTiempo(quickSort, arr, 0, size - 1) << " segundos." << endl;
-    // Heap Sort
-    cout << "Heap Sort: " << medirTiempo(heapSort, arr, size) << " segundos." << endl;
+//---------------------------------FUNCION CARRERA ENTRE ALGORITMOS---------------------------------
+// Función para ejecutar una carrera en un campo dado con barra de progreso y determinar el ganador
+void ejecutarCarreraConProgreso(int arr[], int size, int camposSeleccionado) {
+    // Algoritmos de ordenamiento que toman dos argumentos
+    vector<pair<void (*)(int[], int), string>> algoritmosDosArgumentos = {
+        {selectionSort, "Selection Sort"},
+        {bubbleSort, "Bubble Sort"},
+        {insertionSort, "Insertion Sort"},
+        {shellSort, "Shell Sort"},
+        {heapSort, "Heap Sort"}
+    };
+
+    // Algoritmos de ordenamiento que toman tres argumentos
+    vector<pair<void (*)(int[], int, int), string>> algoritmosTresArgumentos = {
+        {mergeSort, "Merge Sort"},
+        {quickSort, "Quick Sort"}
+    };
+
+    // Variables para almacenar los tiempos de ejecución
+    unordered_map<string, double> tiempos;
+
+    // Ejecutar algoritmos que toman dos argumentos
+    for (const auto& par : algoritmosDosArgumentos) {
+        auto algoritmo = par.first;
+        auto nombreAlgoritmo = par.second;
+
+        auto start = chrono::high_resolution_clock::now();
+
+        // Ejecutar el algoritmo con una barra de progreso
+        for (int i = 0; i < 100; ++i) {
+            algoritmo(arr, size);
+            cout << "\r"<< nombreAlgoritmo; // \r para volver al principio de la línea
+            cout.flush();
+        }
+
+        auto end = chrono::high_resolution_clock::now();
+        chrono::duration<double> duration = end - start;
+
+        // Guardar el tiempo real
+        tiempos[nombreAlgoritmo] = duration.count();
+
+        // Mostrar el tiempo real
+        cout << "\r" << nombreAlgoritmo << " - Tiempo: " << tiempos[nombreAlgoritmo] << " segundos." << endl;
+    }
+
+    // Ejecutar algoritmos que toman tres argumentos
+    for (const auto& par : algoritmosTresArgumentos) {
+        auto algoritmo = par.first;
+        auto nombreAlgoritmo = par.second;
+
+        auto start = chrono::high_resolution_clock::now();
+
+        // Ejecutar el algoritmo con una barra de progreso
+        for (int i = 0; i < 100; ++i) {
+            algoritmo(arr, 0, size - 1);
+            cout << "\r" << nombreAlgoritmo; // \r para volver al principio de la línea
+            cout.flush();
+        }
+
+        auto end = chrono::high_resolution_clock::now();
+        chrono::duration<double> duration = end - start;
+
+        // Guardar el tiempo real
+        tiempos[nombreAlgoritmo] = duration.count();
+
+        // Mostrar el tiempo real
+        cout << "\r" << nombreAlgoritmo << " - Tiempo: " << tiempos[nombreAlgoritmo] << " segundos." << endl;
+    }
     
+    // Encontrar al ganador
+    auto ganador = min_element(tiempos.begin(), tiempos.end(), [](const pair<string, double>& a, const pair<string, double>& b) {
+    return a.second < b.second;
+	});
+
+    // Mostrar al ganador
+    cout << "EL GANADOR ES: " << ganador->first << " CON UN TIEMPO DE: " << ganador->second << " SEGUNDOS." << endl;
     cout << endl;
 }
-
-
+//---------------------------------INICIO MAIN---------------------------------
 int main() {
     srand(static_cast<unsigned>(time(0)));
 
-    const int size = 25;
+    const int size = 20;
     int arr[size];
 
     // Llenar el arreglo con números aleatorios
@@ -245,11 +330,10 @@ int main() {
         cout << arr[i] << " ";
     }
     cout << endl;
-
-    // Menú
+	
+    // Inicio Menú del programa
     int opcion;
     do {
-    	cout << endl;
         cout << "[MAIN MENU]" << endl;
         cout << "1. Seleccion de Carrera" << endl;
         cout << "2. Salir del Programa" << endl;
@@ -257,62 +341,63 @@ int main() {
         cin >> opcion;
 
         switch (opcion) {
-            case 1:
-                // Seleccion de Carrera
-                cout << endl;
-                cout << "Seleccione el campo para la carrera:" << endl;
-                cout << "1. ALEATORIO" << endl;
-                cout << "2. ALEATORIO CON DUPLICADOS:" << endl;
-                cout << "3. ORDENADO:" << endl;
-                cout << "4. INVERSAMENTE ORDENADO" << endl;
-                cout << "0. VOLVER AL MENU PRINCIPAL" << endl;
-
-                int campoSeleccionado;
-                cout << "Selecciona una opcion: ";
-                cin >> campoSeleccionado;
-
-                switch (campoSeleccionado) {
-                    case 1:
-                        // Aleatorio
-                        generarAleatorio(arr, size);
-                        ejecutarCarrera(arr, size, "Aleatorio");
-                        break;
-
-                    case 2:
-                        // Aleatorio con Duplicados
-                        generarAleatorioConDuplicados(arr, size);
-                        ejecutarCarrera(arr, size, "Aleatorio con Duplicados");
-                        break;
-
-                    case 3:
-                        // Ordenado
-                        generarOrdenado(arr, size);
-                        ejecutarCarrera(arr, size, "Ordenado");
-                        break;
-
-                    case 4:
-                        // Inversamente Ordenado
-                        generarInversamenteOrdenado(arr, size);
-                        ejecutarCarrera(arr, size, "Inversamente Ordenado");
-                        break;
-
-                    case 0:
-                        // Volver al Menú Principal
-                        break;
-
-                    default:
-                        cout << "Opción no válida." << endl;
-                }
-                break;
-
-            case 2:
-                // Salir del Programa
-                cout << "Saliendo del programa." << endl;
-                break;
-
-            default:
-                cout << "Opción no válida." << endl;
-        }
+		    case 1:
+		        // Seleccion de Carrera
+		        cout << endl;
+		        cout << "[SELECCIONE EL CAMPO PARA LA CARRERA]" << endl;
+		        cout << "1. Aleatorio" << endl;
+		        cout << "2. Aleatorio con Duplicados" << endl;
+		        cout << "3. Ordenado" << endl;
+		        cout << "4. Inversamente Ordenado" << endl;
+		        cout << "0. VOLVER AL MENU PRINCIPAL" << endl;
+				
+		        int campoSeleccionado;
+		        cout << "Selecciona una opcion: ";
+		        cin >> campoSeleccionado;
+		        cout << endl;
+		
+		        switch (campoSeleccionado) {
+		            case 1:
+		                // Aleatorio
+		                generarAleatorio(arr, size);
+		                ejecutarCarreraConProgreso(arr, size, campoSeleccionado);
+		                break;
+		
+		            case 2:
+		                // Aleatorio con Duplicados
+		                generarAleatorioConDuplicados(arr, size);
+		                ejecutarCarreraConProgreso(arr, size, campoSeleccionado);
+		                break;
+		
+		            case 3:
+		                // Ordenado
+		                generarOrdenado(arr, size);
+		                ejecutarCarreraConProgreso(arr, size, campoSeleccionado);
+		                break;
+		
+		            case 4:
+		                // Inversamente Ordenado
+		                generarInversamenteOrdenado(arr, size);
+		                ejecutarCarreraConProgreso(arr, size, campoSeleccionado);
+		                break;
+		
+		            case 0:
+		                // Volver al Menú Principal
+		                break;
+		
+		            default:
+		                cout << "Opción no válida." << endl;
+		        }
+		        break; // Añadido para salir del switch y volver al menú principal
+		
+		    case 2:
+		        // Salir del Programa
+		        cout << "Saliendo del programa." << endl;
+		        break;
+		
+		    default:
+		        cout << "Opción no válida." << endl;
+		}
 
     } while (opcion != 2);
 
