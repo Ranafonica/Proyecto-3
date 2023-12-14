@@ -11,7 +11,7 @@ using namespace std;
 //---------------------------------GENERACION DE DATOS---------------------------------
 // COLAS DE ESPERA
 void generarDatosJugadores(int& numeroJugadores) {
-    numeroJugadores = (rand() % 110001) + 100000;  // Rango para Jugadores: 100,000 a 110,000
+    numeroJugadores = 100000 + rand() % (110000+1 - 100000);  // Rango para Jugadores: 100,000 a 110,000
     cout << "Jugadores en COLA DE ESPERA: " << numeroJugadores << endl;
 }
 //---------------------------------ENTRADA DE DATOS---------------------------------
@@ -20,13 +20,6 @@ void generarAleatorio(int arr[], int size, int numeroJugadores) {
     for (int i = 0; i < size; ++i) {
         arr[i] = rand() % numeroJugadores + 1; // Numero jugadores pasa a ser la variable la cual contiene el valor del rango del arreglo.
     }
-
-    // Agregar impresión del arreglo
-    cout << "Arreglo Aleatorio: ";
-    for (int i = 0; i < size; ++i) {
-        cout << arr[i] << " ";
-    }
-    cout << endl;
 }
 // Orden Aleatorio con Duplicados
 void generarAleatorioConDuplicados(int arr[], int size, int numeroJugadores) {
@@ -34,39 +27,18 @@ void generarAleatorioConDuplicados(int arr[], int size, int numeroJugadores) {
         arr[i] = rand() % numeroJugadores + 1;
     }
     random_shuffle(arr, arr + size);
-
-    // Agregar impresión del arreglo
-    cout << "Arreglo Aleatorio con Duplicados: ";
-    for (int i = 0; i < size; ++i) {
-        cout << arr[i] << " ";
-    }
-    cout << endl;
 }
 // Orden Ordenado
 void generarOrdenado(int arr[], int size, int numeroJugadores) {
     for (int i = 0; i < size; ++i) {
         arr[i] = i + 1;
     }
-
-    // Agregar impresión del arreglo
-    cout << "Arreglo Ordenado: ";
-    for (int i = 0; i < size; ++i) {
-        cout << arr[i] << " ";
-    }
-    cout << endl;
 }
 // Orden Inversamente Ordenado
 void generarInversamenteOrdenado(int arr[], int size, int numeroJugadores) {
     for (int i = 0; i < size; ++i) {
         arr[i] = numeroJugadores - i;
     }
-
-    // Agregar impresión del arreglo
-    cout << "Arreglo Inversamente Ordenado: ";
-    for (int i = 0; i < size; ++i) {
-        cout << arr[i] << " ";
-    }
-    cout << endl;
 }
 
 //---------------------------------ALGORITMOS DE ORDENAMIENTO---------------------------------
@@ -117,7 +89,7 @@ void shellSort(int arr[], int size) {
         }
     }
 }
-
+// Merge Sort (Algoritmo Logartimico)
 void merge(int arr[], int left, int middle, int right) {
     int n1 = middle - left + 1;
     int n2 = right - middle;
@@ -156,18 +128,22 @@ void merge(int arr[], int left, int middle, int right) {
         ++k;
     }
 }
-// Merge Sort (Algoritmo Logartimico)
-void mergeSort(int arr[], int left, int right) {
+// Funcion que ayudará a Merge Sort que reciba 2 parámetros.
+void mergeSortHelper(int arr[], int left, int right) {
     if (left < right) {
         int middle = left + (right - left) / 2;
 
-        mergeSort(arr, left, middle);
-        mergeSort(arr, middle + 1, right);
+        mergeSortHelper(arr, left, middle);
+        mergeSortHelper(arr, middle + 1, right);
 
         merge(arr, left, middle, right);
     }
 }
 
+void mergeSort(int arr[], int size) {
+    mergeSortHelper(arr, 0, size - 1);
+}
+// Quick Sort (Algoritmo Logartimico)
 int partition(int arr[], int low, int high) {
     int pivot = arr[high];
     int i = low - 1;
@@ -182,16 +158,20 @@ int partition(int arr[], int low, int high) {
     swap(arr[i + 1], arr[high]);
     return i + 1;
 }
-// Quick Sort (Algoritmo Logartimico)
-void quickSort(int arr[], int low, int high) {
+// Funcion que ayudará a Quick Sort que reciba 2 parámetros.
+void quickSortHelper(int arr[], int low, int high) {
     if (low < high) {
         int pi = partition(arr, low, high);
 
-        quickSort(arr, low, pi - 1);
-        quickSort(arr, pi + 1, high);
+        quickSortHelper(arr, low, pi - 1);
+        quickSortHelper(arr, pi + 1, high);
     }
 }
 
+void quickSort(int arr[], int size) {
+    quickSortHelper(arr, 0, size - 1);
+}
+// Merge Sort (Algoritmo Logartimico)
 void heapify(int arr[], int size, int i) {
     int largest = i;
     int left = 2 * i + 1;
@@ -210,7 +190,6 @@ void heapify(int arr[], int size, int i) {
         heapify(arr, size, largest);
     }
 }
-// Merge Sort (Algoritmo Logartimico)
 void heapSort(int arr[], int size) {
     for (int i = size / 2 - 1; i >= 0; --i) {
         heapify(arr, size, i);
@@ -226,7 +205,7 @@ void liberarMemoria(int* arr) {
     delete[] arr;
 }
 //---------------------------------FUNCIONES MEDICION TIEMPO ORDENAMIENTO---------------------------------
-// Función para medir el tiempo de ejecución de algoritmos de ordenamiento que toman dos argumentos
+// Función para medir el tiempo de ejecución de un algoritmo de ordenamiento
 template <typename Func>
 double medirTiempo(Func func, int arr[], int size) {
     auto start = chrono::high_resolution_clock::now();
@@ -235,87 +214,40 @@ double medirTiempo(Func func, int arr[], int size) {
     chrono::duration<double> duration = end - start;
     return duration.count();
 }
-
-// Función para medir el tiempo de ejecución de algoritmos de ordenamiento que toman tres argumentos
-template <typename Func>
-double medirTiempo(Func func, int arr[], int left, int right) {
-    auto start = chrono::high_resolution_clock::now();
-    func(arr, left, right);
-    auto end = chrono::high_resolution_clock::now();
-    chrono::duration<double> duration = end - start;
-    return duration.count();
-}
 //---------------------------------FUNCION CARRERA ENTRE ALGORITMOS---------------------------------
-// Función para ejecutar una carrera en un campo dado con barra de progreso y determinar el ganador
-void ejecutarCarreraConProgreso(int arr[], int size, int camposSeleccionado) {
-    // Algoritmos de ordenamiento que toman dos argumentos
-    vector<pair<void (*)(int[], int), string>> algoritmosDosArgumentos = {
+// Función para ejecutar una carrera entre algoritmos y determinar el ganador
+void ejecutarCarrera(int arr[], int size) {
+    // Algoritmos de ordenamiento
+    vector<pair<void (*)(int[], int), string>> algoritmos = {
         {selectionSort, "Selection Sort"},
         {bubbleSort, "Bubble Sort"},
         {insertionSort, "Insertion Sort"},
         {shellSort, "Shell Sort"},
+        {mergeSort, "Merge Sort"},
+        {quickSort, "Quick Sort"},
         {heapSort, "Heap Sort"}
     };
 
-    // Algoritmos de ordenamiento que toman tres argumentos
-    vector<pair<void (*)(int[], int, int), string>> algoritmosTresArgumentos = {
-        {mergeSort, "Merge Sort"},
-        {quickSort, "Quick Sort"}
-    };
+    // Almacenar los tiempos de cada algoritmo
+    vector<pair<string, double>> tiempos;
 
-    // Variables para almacenar los tiempos de ejecución
-    unordered_map<string, double> tiempos;
-
-    // Ejecutar algoritmos que toman dos argumentos
-    for (const auto& par : algoritmosDosArgumentos) {
+    // Ejecutar cada algoritmo y medir el tiempo
+    for (const auto& par : algoritmos) {
         auto algoritmo = par.first;
         auto nombreAlgoritmo = par.second;
 
-        auto start = chrono::high_resolution_clock::now();
+        // Copiar el arreglo para que cada algoritmo ordene el mismo conjunto de datos
+        int* copiaArr = new int[size];
+        copy(arr, arr + size, copiaArr);
 
-        // Ejecutar el algoritmo con una barra de progreso
-        for (int i = 0; i < 10; ++i) {  // Reducir el número de ejecuciones
-            algoritmo(arr, size);
-            if (i % 10 == 0) {
-                cout << "\r" << nombreAlgoritmo << " - Progreso: " << (i + 1) * 10 << "%";
-                cout.flush();
-            }
-        }
+        // Medir el tiempo
+        double tiempo = medirTiempo(algoritmo, copiaArr, size);
 
-        auto end = chrono::high_resolution_clock::now();
-        chrono::duration<double> duration = end - start;
+        // Almacenar el tiempo y el nombre del algoritmo
+        tiempos.push_back({nombreAlgoritmo, tiempo});
 
-        // Guardar el tiempo real
-        tiempos[nombreAlgoritmo] = duration.count();
-
-        // Mostrar el tiempo promedio
-        cout << "\r" << nombreAlgoritmo << " - Tiempo Promedio: " << tiempos[nombreAlgoritmo] / 10 << " segundos." << endl;
-    }
-
-    // Ejecutar algoritmos que toman tres argumentos
-    for (const auto& par : algoritmosTresArgumentos) {
-        auto algoritmo = par.first;
-        auto nombreAlgoritmo = par.second;
-
-        auto start = chrono::high_resolution_clock::now();
-
-        // Ejecutar el algoritmo con una barra de progreso
-        for (int i = 0; i < 10; ++i) {  // Reducir el número de ejecuciones
-            algoritmo(arr, 0, size - 1);
-            if (i % 10 == 0) {
-                cout << "\r" << nombreAlgoritmo << " - Progreso: " << (i + 1) * 10 << "%";
-                cout.flush();
-            }
-        }
-
-        auto end = chrono::high_resolution_clock::now();
-        chrono::duration<double> duration = end - start;
-
-        // Guardar el tiempo real
-        tiempos[nombreAlgoritmo] = duration.count();
-
-        // Mostrar el tiempo promedio
-        cout << "\r" << nombreAlgoritmo << " - Tiempo Promedio: " << tiempos[nombreAlgoritmo] / 10 << " segundos." << endl;
+        // Liberar la memoria
+        delete[] copiaArr;
     }
 
     // Encontrar al ganador
@@ -323,9 +255,12 @@ void ejecutarCarreraConProgreso(int arr[], int size, int camposSeleccionado) {
         return a.second < b.second;
     });
 
-    // Mostrar al ganador
-    cout << "EL GANADOR ES: " << ganador->first << " CON UN TIEMPO PROMEDIO DE: " << ganador->second / 10 << " SEGUNDOS." << endl;
-    cout << endl;
+    // Mostrar los tiempos y al ganador
+    for (const auto& par : tiempos) {
+        cout << par.first << " - Tiempo: " << par.second << " segundos." << endl;
+    }
+
+    cout << "EL GANADOR ES: " << ganador->first << " CON UN TIEMPO DE: " << ganador->second << " SEGUNDOS." << endl;
 }
 //---------------------------------INICIO MAIN---------------------------------
 int main() {
@@ -365,22 +300,22 @@ int main() {
                 switch (campoSeleccionado) {
                     case 1:
                         generarAleatorio(arr.data(), numeroJugadores, numeroJugadores);
-                        ejecutarCarreraConProgreso(arr.data(), numeroJugadores, campoSeleccionado);
+                        ejecutarCarrera(arr.data(), numeroJugadores);
                         break;
 
                     case 2:
                         generarAleatorioConDuplicados(arr.data(), numeroJugadores, numeroJugadores);
-                        ejecutarCarreraConProgreso(arr.data(), numeroJugadores, campoSeleccionado);
+                        ejecutarCarrera(arr.data(), numeroJugadores);
                         break;
 
                     case 3:
                         generarOrdenado(arr.data(), numeroJugadores, numeroJugadores);
-                        ejecutarCarreraConProgreso(arr.data(), numeroJugadores, campoSeleccionado);
+                        ejecutarCarrera(arr.data(), numeroJugadores);
                         break;
 
                     case 4:
                         generarInversamenteOrdenado(arr.data(), numeroJugadores, numeroJugadores);
-                        ejecutarCarreraConProgreso(arr.data(), numeroJugadores, campoSeleccionado);
+                        ejecutarCarrera(arr.data(), numeroJugadores);
                         break;
 
                     case 0:
