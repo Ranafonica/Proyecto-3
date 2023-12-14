@@ -1,18 +1,24 @@
 #include <iostream>
 #include <iomanip>
 #include <ctime>
-#include <cstdlib>
 #include <chrono>
 #include <algorithm>
 #include <unordered_map>
+#include <random>
 
 using namespace std;
 
 //---------------------------------GENERACION DE DATOS---------------------------------
+// COLAS DE ESPERA
+void generarDatosJugadores(int& numeroJugadores) {
+    numeroJugadores = (rand() % 110001) + 100000;  // Rango para Jugadores: 100,000 a 110,000
+    cout << "Jugadores en COLA DE ESPERA: " << numeroJugadores << endl;
+}
+//---------------------------------ENTRADA DE DATOS---------------------------------
 // Orden Aleatorio
-void generarAleatorio(int arr[], int size) {
+void generarAleatorio(int arr[], int size, int numeroJugadores) {
     for (int i = 0; i < size; ++i) {
-        arr[i] = rand() % 1000 + 1;
+        arr[i] = rand() % numeroJugadores + 1; // Numero jugadores pasa a ser la variable la cual contiene el valor del rango del arreglo.
     }
 
     // Agregar impresión del arreglo
@@ -22,10 +28,10 @@ void generarAleatorio(int arr[], int size) {
     }
     cout << endl;
 }
-
-void generarAleatorioConDuplicados(int arr[], int size) {
+// Orden Aleatorio con Duplicados
+void generarAleatorioConDuplicados(int arr[], int size, int numeroJugadores) {
     for (int i = 0; i < size; ++i) {
-        arr[i] = rand() % 1000 + 1;
+        arr[i] = rand() % numeroJugadores + 1;
     }
     random_shuffle(arr, arr + size);
 
@@ -36,8 +42,8 @@ void generarAleatorioConDuplicados(int arr[], int size) {
     }
     cout << endl;
 }
-
-void generarOrdenado(int arr[], int size) {
+// Orden Ordenado
+void generarOrdenado(int arr[], int size, int numeroJugadores) {
     for (int i = 0; i < size; ++i) {
         arr[i] = i + 1;
     }
@@ -49,10 +55,10 @@ void generarOrdenado(int arr[], int size) {
     }
     cout << endl;
 }
-
-void generarInversamenteOrdenado(int arr[], int size) {
+// Orden Inversamente Ordenado
+void generarInversamenteOrdenado(int arr[], int size, int numeroJugadores) {
     for (int i = 0; i < size; ++i) {
-        arr[i] = size - i;
+        arr[i] = numeroJugadores - i;
     }
 
     // Agregar impresión del arreglo
@@ -63,7 +69,8 @@ void generarInversamenteOrdenado(int arr[], int size) {
     cout << endl;
 }
 
-//---------------------------------FUNCIONES DE ORDENAMIENTO---------------------------------
+//---------------------------------ALGORITMOS DE ORDENAMIENTO---------------------------------
+// Selection Sort (Algoritmo Cuadrático)
 void selectionSort(int arr[], int size) {
     for (int i = 0; i < size - 1; ++i) {
         int minIndex = i;
@@ -75,7 +82,7 @@ void selectionSort(int arr[], int size) {
         swap(arr[i], arr[minIndex]);
     }
 }
-
+// Bubble Sort (Algoritmo Cuadrático)
 void bubbleSort(int arr[], int size) {
     for (int i = 0; i < size - 1; ++i) {
         for (int j = 0; j < size - i - 1; ++j) {
@@ -85,7 +92,7 @@ void bubbleSort(int arr[], int size) {
         }
     }
 }
-
+// Insertion Sort (Algoritmo Cuadrático)
 void insertionSort(int arr[], int size) {
     for (int i = 1; i < size; ++i) {
         int key = arr[i];
@@ -97,7 +104,7 @@ void insertionSort(int arr[], int size) {
         arr[j + 1] = key;
     }
 }
-
+// Shell Sort (Algoritmo Cuadrático)
 void shellSort(int arr[], int size) {
     for (int gap = size / 2; gap > 0; gap /= 2) {
         for (int i = gap; i < size; ++i) {
@@ -149,7 +156,7 @@ void merge(int arr[], int left, int middle, int right) {
         ++k;
     }
 }
-
+// Merge Sort (Algoritmo Logartimico)
 void mergeSort(int arr[], int left, int right) {
     if (left < right) {
         int middle = left + (right - left) / 2;
@@ -175,7 +182,7 @@ int partition(int arr[], int low, int high) {
     swap(arr[i + 1], arr[high]);
     return i + 1;
 }
-
+// Quick Sort (Algoritmo Logartimico)
 void quickSort(int arr[], int low, int high) {
     if (low < high) {
         int pi = partition(arr, low, high);
@@ -203,7 +210,7 @@ void heapify(int arr[], int size, int i) {
         heapify(arr, size, largest);
     }
 }
-
+// Merge Sort (Algoritmo Logartimico)
 void heapSort(int arr[], int size) {
     for (int i = size / 2 - 1; i >= 0; --i) {
         heapify(arr, size, i);
@@ -213,6 +220,10 @@ void heapSort(int arr[], int size) {
         swap(arr[0], arr[i]);
         heapify(arr, i, 0);
     }
+}
+//---------------------------------LIBERACIÓN DE MEMORIA---------------------------------
+void liberarMemoria(int* arr) {
+    delete[] arr;
 }
 //---------------------------------FUNCIONES MEDICION TIEMPO ORDENAMIENTO---------------------------------
 // Función para medir el tiempo de ejecución de algoritmos de ordenamiento que toman dos argumentos
@@ -263,10 +274,12 @@ void ejecutarCarreraConProgreso(int arr[], int size, int camposSeleccionado) {
         auto start = chrono::high_resolution_clock::now();
 
         // Ejecutar el algoritmo con una barra de progreso
-        for (int i = 0; i < 100; ++i) {
+        for (int i = 0; i < 10; ++i) {  // Reducir el número de ejecuciones
             algoritmo(arr, size);
-            cout << "\r"<< nombreAlgoritmo; // \r para volver al principio de la línea
-            cout.flush();
+            if (i % 10 == 0) {
+                cout << "\r" << nombreAlgoritmo << " - Progreso: " << (i + 1) * 10 << "%";
+                cout.flush();
+            }
         }
 
         auto end = chrono::high_resolution_clock::now();
@@ -275,8 +288,8 @@ void ejecutarCarreraConProgreso(int arr[], int size, int camposSeleccionado) {
         // Guardar el tiempo real
         tiempos[nombreAlgoritmo] = duration.count();
 
-        // Mostrar el tiempo real
-        cout << "\r" << nombreAlgoritmo << " - Tiempo: " << tiempos[nombreAlgoritmo] << " segundos." << endl;
+        // Mostrar el tiempo promedio
+        cout << "\r" << nombreAlgoritmo << " - Tiempo Promedio: " << tiempos[nombreAlgoritmo] / 10 << " segundos." << endl;
     }
 
     // Ejecutar algoritmos que toman tres argumentos
@@ -287,10 +300,12 @@ void ejecutarCarreraConProgreso(int arr[], int size, int camposSeleccionado) {
         auto start = chrono::high_resolution_clock::now();
 
         // Ejecutar el algoritmo con una barra de progreso
-        for (int i = 0; i < 100; ++i) {
+        for (int i = 0; i < 10; ++i) {  // Reducir el número de ejecuciones
             algoritmo(arr, 0, size - 1);
-            cout << "\r" << nombreAlgoritmo; // \r para volver al principio de la línea
-            cout.flush();
+            if (i % 10 == 0) {
+                cout << "\r" << nombreAlgoritmo << " - Progreso: " << (i + 1) * 10 << "%";
+                cout.flush();
+            }
         }
 
         auto end = chrono::high_resolution_clock::now();
@@ -299,38 +314,23 @@ void ejecutarCarreraConProgreso(int arr[], int size, int camposSeleccionado) {
         // Guardar el tiempo real
         tiempos[nombreAlgoritmo] = duration.count();
 
-        // Mostrar el tiempo real
-        cout << "\r" << nombreAlgoritmo << " - Tiempo: " << tiempos[nombreAlgoritmo] << " segundos." << endl;
+        // Mostrar el tiempo promedio
+        cout << "\r" << nombreAlgoritmo << " - Tiempo Promedio: " << tiempos[nombreAlgoritmo] / 10 << " segundos." << endl;
     }
-    
+
     // Encontrar al ganador
     auto ganador = min_element(tiempos.begin(), tiempos.end(), [](const pair<string, double>& a, const pair<string, double>& b) {
-    return a.second < b.second;
-	});
+        return a.second < b.second;
+    });
 
     // Mostrar al ganador
-    cout << "EL GANADOR ES: " << ganador->first << " CON UN TIEMPO DE: " << ganador->second << " SEGUNDOS." << endl;
+    cout << "EL GANADOR ES: " << ganador->first << " CON UN TIEMPO PROMEDIO DE: " << ganador->second / 10 << " SEGUNDOS." << endl;
     cout << endl;
 }
 //---------------------------------INICIO MAIN---------------------------------
 int main() {
     srand(static_cast<unsigned>(time(0)));
 
-    const int size = 20;
-    int arr[size];
-
-    // Llenar el arreglo con números aleatorios
-    for (int i = 0; i < size; ++i) {
-        arr[i] = rand() % 100 + 1;
-    }
-
-    // Mostrar el arreglo original
-    cout << "Arreglo Original:" << endl;
-    for (int i = 0; i < size; ++i) {
-        cout << arr[i] << " ";
-    }
-    cout << endl;
-	
     // Inicio Menú del programa
     int opcion;
     do {
@@ -341,66 +341,71 @@ int main() {
         cin >> opcion;
 
         switch (opcion) {
-		    case 1:
-		        // Seleccion de Carrera
-		        cout << endl;
-		        cout << "[SELECCIONE EL CAMPO PARA LA CARRERA]" << endl;
-		        cout << "1. Aleatorio" << endl;
-		        cout << "2. Aleatorio con Duplicados" << endl;
-		        cout << "3. Ordenado" << endl;
-		        cout << "4. Inversamente Ordenado" << endl;
-		        cout << "0. VOLVER AL MENU PRINCIPAL" << endl;
-				
-		        int campoSeleccionado;
-		        cout << "Selecciona una opcion: ";
-		        cin >> campoSeleccionado;
-		        cout << endl;
-		
-		        switch (campoSeleccionado) {
-		            case 1:
-		                // Aleatorio
-		                generarAleatorio(arr, size);
-		                ejecutarCarreraConProgreso(arr, size, campoSeleccionado);
-		                break;
-		
-		            case 2:
-		                // Aleatorio con Duplicados
-		                generarAleatorioConDuplicados(arr, size);
-		                ejecutarCarreraConProgreso(arr, size, campoSeleccionado);
-		                break;
-		
-		            case 3:
-		                // Ordenado
-		                generarOrdenado(arr, size);
-		                ejecutarCarreraConProgreso(arr, size, campoSeleccionado);
-		                break;
-		
-		            case 4:
-		                // Inversamente Ordenado
-		                generarInversamenteOrdenado(arr, size);
-		                ejecutarCarreraConProgreso(arr, size, campoSeleccionado);
-		                break;
-		
-		            case 0:
-		                // Volver al Menú Principal
-		                break;
-		
-		            default:
-		                cout << "Opción no válida." << endl;
-		        }
-		        break; // Añadido para salir del switch y volver al menú principal
-		
-		    case 2:
-		        // Salir del Programa
-		        cout << "Saliendo del programa." << endl;
-		        break;
-		
-		    default:
-		        cout << "Opción no válida." << endl;
-		}
+            case 1: {
+                // Seleccion de Carrera
+                cout << endl;
+                cout << "[SELECCIONE EL CAMPO PARA LA CARRERA]" << endl;
+                cout << "1. Aleatorio" << endl;
+                cout << "2. Aleatorio con Duplicados" << endl;
+                cout << "3. Ordenado" << endl;
+                cout << "4. Inversamente Ordenado" << endl;
+                cout << "0. VOLVER AL MENU PRINCIPAL" << endl;
+
+                int campoSeleccionado;
+                cout << "Selecciona una opcion: ";
+                cin >> campoSeleccionado;
+                cout << endl;
+
+                int numeroJugadores;  // Este será el parámetro para el rango de jugadores
+                generarDatosJugadores(numeroJugadores);
+
+                // Utilizar un vector dinámico en lugar de un arreglo estático
+                vector<int> arr(numeroJugadores);
+
+                switch (campoSeleccionado) {
+                    case 1:
+                        generarAleatorio(arr.data(), numeroJugadores, numeroJugadores);
+                        ejecutarCarreraConProgreso(arr.data(), numeroJugadores, campoSeleccionado);
+                        break;
+
+                    case 2:
+                        generarAleatorioConDuplicados(arr.data(), numeroJugadores, numeroJugadores);
+                        ejecutarCarreraConProgreso(arr.data(), numeroJugadores, campoSeleccionado);
+                        break;
+
+                    case 3:
+                        generarOrdenado(arr.data(), numeroJugadores, numeroJugadores);
+                        ejecutarCarreraConProgreso(arr.data(), numeroJugadores, campoSeleccionado);
+                        break;
+
+                    case 4:
+                        generarInversamenteOrdenado(arr.data(), numeroJugadores, numeroJugadores);
+                        ejecutarCarreraConProgreso(arr.data(), numeroJugadores, campoSeleccionado);
+                        break;
+
+                    case 0:
+                        // Volver al Menú Principal
+                        break;
+
+                    default:
+                        cout << "Opción no válida." << endl;
+                        break;
+                }
+            }
+                break;
+
+            case 2:
+                // Salir del Programa
+                cout << "Saliendo del programa." << endl;
+                break;
+
+            default:
+                cout << "Opción no válida." << endl;
+        }
 
     } while (opcion != 2);
 
     return 0;
 }
+
 
